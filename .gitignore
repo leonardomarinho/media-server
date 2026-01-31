@@ -17,6 +17,8 @@ provision/overseerr/*
 provision/flaresolverr/*
 provision/huntarr/*
 provision/suggestarr/*
+provision/jellyfin/*
+provision/jellyseerr/*
 
 provision/.env.*
 

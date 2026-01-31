@@ -1,17 +1,26 @@
-version: '3.9'
+## COMMON COMMANDS:
+# Check for typos: docker-compose config
+# Run: docker-compose up -d
+# Stop a container: docker-compose stop containername
+# Remove a stopped container: docker-compose rm containername
+# Stop all containers: docker kill $(docker ps -q)
+# Remove stopped containers: docker container prune
+# Stop & remove containers: docker rm $(docker ps -a -q)
+# Remove everything related to stopped containers: docker system prune --all --volumes --force
+#
 
 services:
 
-  plex:
-    image: plexinc/pms-docker
-    container_name: plex
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
     env_file:
       - ./provision/.env.defaults
     environment:
       - VERSION=docker
-      - HOSTNAME="PlexServer"
+      - HOSTNAME="JellyfinServer"
     volumes:
-      - ./provision/plex:/config
+      - ./provision/jellyfin:/config
       - ./content/media:/data/media
     network_mode: host
     # ports: # when network: bridge
@@ -112,31 +121,31 @@ services:
     networks:
       - media-network
 
-  jackett:
-    image: linuxserver/jackett
-    container_name: jackett
-    env_file:
-      - ./provision/.env.defaults
-    volumes:
-      - ./provision/jackett:/config
-    ports:
-      - "9117:9117"
-    restart: unless-stopped
-    networks:
-      - media-network
+#  jackett:
+#    image: linuxserver/jackett
+#    container_name: jackett
+#    env_file:
+#      - ./provision/.env.defaults
+#    volumes:
+#      - ./provision/jackett:/config
+#    ports:
+#      - "9117:9117"
+#    restart: unless-stopped
+#    networks:
+#      - media-network
 
-  ombi:
-    image: linuxserver/ombi
-    container_name: ombi
-    env_file:
-      - ./provision/.env.defaults
-    volumes:
-      - ./provision/ombi:/config
-    ports:
-      - "3579:3579"
-    restart: unless-stopped
-    networks:
-      - media-network
+#  ombi:
+#    image: linuxserver/ombi
+#    container_name: ombi
+#    env_file:
+#      - ./provision/.env.defaults
+#    volumes:
+#      - ./provision/ombi:/config
+#    ports:
+#      - "3579:3579"
+#    restart: unless-stopped
+#    networks:
+#      - media-network
 
   heimdall:
     image: linuxserver/heimdall
@@ -153,13 +162,27 @@ services:
     networks:
       - media-network
 
-  overseerr:
-    image: lscr.io/linuxserver/overseerr
-    container_name: overseerr
+#  overseerr:
+#    image: lscr.io/linuxserver/overseerr
+#    container_name: overseerr
+#    env_file:
+#      - ./provision/.env.defaults
+#    volumes:
+#      - ./provision/overseerr:/config
+#    ports:
+#      - "5055:5055"
+#    restart: unless-stopped
+#    networks:
+#      - media-network
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr
+    container_name: jellyseerr
     env_file:
       - ./provision/.env.defaults
     volumes:
-      - ./provision/overseerr:/config
+      - ./provision/jellyseerr:/config
+      - ./provision/jellyseerr:/app/config
     ports:
       - "5055:5055"
     restart: unless-stopped
@@ -179,19 +202,6 @@ services:
     networks:
       - media-network
 
-  flaresolverr:
-    image: ghcr.io/flaresolverr/flaresolverr
-    container_name: flaresolverr
-    env_file:
-      - ./provision/.env.defaults
-    volumes:
-      - ./provision/flaresolverr:/config
-    ports:
-      - "8191:8191"
-    restart: unless-stopped
-    networks:
-      - media-network
-
   huntarr:
     image: ghcr.io/plexguide/huntarr:latest
     container_name: huntarr
@@ -204,25 +214,6 @@ services:
     restart: unless-stopped
     networks:
       - media-network
-
-#  watchtower:
-#   image: containrrr/watchtower
-#    container_name: watchtower
-#    env_file:
-#      - ./provision/.env.defaults
-#      - ./provision/.env.secrets
-#    environment:
-#      - WATCHTOWER_CLEANUP=true        # Remove old images after update
-#      - WATCHTOWER_POLL_INTERVAL=86400 # Check every 24h (in seconds)
-#      # - WATCHTOWER_NOTIFICATION_TELEGRAM_TOKEN=${TELEGRAM_TOKEN} # cherry-pick from .env.secret
-#      # - WATCHTOWER_NOTIFICATION_TELEGRAM_CHAT_ID=${TELEGRAM_CHAT_ID}
-#      # - WATCHTOWER_INCLUDE_STOPPED=true # Optional: update stopped containers
-#      # - WATCHTOWER_LABEL_ENABLE=true    # Optional: only update containers with "com.centurylinklabs.watchtower.enable=true"
-#    volumes:
-#      - /var/run/docker.sock:/var/run/docker.sock
-#    restart: unless-stopped
-#    networks:
-#      - media-network
 
 networks:
   media-network:
